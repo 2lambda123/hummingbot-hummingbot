@@ -2,6 +2,7 @@ from decimal import Decimal
 from typing import cast
 
 from hummingbot.client.settings import AllConnectorSettings
+from hummingbot.connector.gateway.amm.gateway_ergo_amm import GatewayErgoAMM
 from hummingbot.connector.gateway.amm.gateway_evm_amm import GatewayEVMAMM
 from hummingbot.connector.gateway.amm.gateway_telos_amm import GatewayTelosAMM
 from hummingbot.connector.gateway.amm.gateway_tezos_amm import GatewayTezosAMM
@@ -19,7 +20,7 @@ def start(self):
     market_1 = amm_arb_config_map.get("market_1").value
     connector_2 = amm_arb_config_map.get("connector_2").value.lower()
     market_2 = amm_arb_config_map.get("market_2").value
-    pool_id = "_" + amm_arb_config_map.get("pool_id").value
+    pool_id = "_" + amm_arb_config_map.get("pool_id").value if amm_arb_config_map.get("pool_id").value != "" else ""
     order_amount = amm_arb_config_map.get("order_amount").value
     min_profitability = amm_arb_config_map.get("min_profitability").value / Decimal("100")
     market_1_slippage_buffer = amm_arb_config_map.get("market_1_slippage_buffer").value / Decimal("100")
@@ -60,6 +61,8 @@ def start(self):
             amm_connector: GatewayTezosAMM = cast(GatewayTezosAMM, amm_market_info.market)
         elif Chain.TELOS.chain == amm_market_info.market.chain:
             amm_connector: GatewayTelosAMM = cast(GatewayTelosAMM, amm_market_info.market)
+        elif Chain.ERGO.chain == amm_market_info.market.chain:
+            amm_connector: GatewayErgoAMM = cast(GatewayErgoAMM, amm_market_info.market)
         else:
             raise ValueError(f"Unsupported chain: {amm_market_info.market.chain}")
         GatewayPriceShim.get_instance().patch_prices(
@@ -68,24 +71,29 @@ def start(self):
             amm_connector.connector_name,
             amm_connector.chain,
             amm_connector.network,
-            amm_market_info.trading_pair
+            amm_market_info.trading_pair,
         )
 
     if rate_oracle_enabled:
         rate_source = RateOracle.get_instance()
     else:
         rate_source = FixedRateSource()
-        rate_source.add_rate(f"{quote_2}-{quote_1}", Decimal(str(quote_conversion_rate)))   # reverse rate is already handled in FixedRateSource find_rate method.
-        rate_source.add_rate(f"{quote_1}-{quote_2}", Decimal(str(1 / quote_conversion_rate)))   # reverse rate is already handled in FixedRateSource find_rate method.
+        rate_source.add_rate(
+            f"{quote_2}-{quote_1}", Decimal(str(quote_conversion_rate))
+        )  # reverse rate is already handled in FixedRateSource find_rate method.
+        rate_source.add_rate(
+            f"{quote_1}-{quote_2}", Decimal(str(1 / quote_conversion_rate))
+        )  # reverse rate is already handled in FixedRateSource find_rate method.
 
     self.strategy = AmmArbStrategy()
-    self.strategy.init_params(market_info_1=market_info_1,
-                              market_info_2=market_info_2,
-                              min_profitability=min_profitability,
-                              order_amount=order_amount,
-                              market_1_slippage_buffer=market_1_slippage_buffer,
-                              market_2_slippage_buffer=market_2_slippage_buffer,
-                              concurrent_orders_submission=concurrent_orders_submission,
-                              gateway_transaction_cancel_interval=gateway_transaction_cancel_interval,
-                              rate_source=rate_source,
-                              )
+    self.strategy.init_params(
+        market_info_1=market_info_1,
+        market_info_2=market_info_2,
+        min_profitability=min_profitability,
+        order_amount=order_amount,
+        market_1_slippage_buffer=market_1_slippage_buffer,
+        market_2_slippage_buffer=market_2_slippage_buffer,
+        concurrent_orders_submission=concurrent_orders_submission,
+        gateway_transaction_cancel_interval=gateway_transaction_cancel_interval,
+        rate_source=rate_source,
+    )
