@@ -236,8 +236,6 @@ class GatewayCommand(GatewayChainApiManager):
                                          ] = connector_config[0]["available_networks"]
                 trading_type: str = connector_config[0]["trading_type"][0]
                 chain_type: str = connector_config[0]["chain_type"]
-                additional_spenders: List[str] = connector_config[0].get(
-                    "additional_spenders", [])
                 additional_prompts: Dict[str, str] = connector_config[0].get(  # These will be stored locally.
                     # If Gateway requires additional, prompts with secure info,
                     "additional_add_wallet_prompts",
@@ -299,7 +297,7 @@ class GatewayCommand(GatewayChainApiManager):
                     wallets = matching_wallets[0]['walletAddresses']
 
                 # if the user has no wallet, ask them to select one
-                if len(wallets) < 1 or chain == "near" or len(additional_prompts) != 0:
+                if len(wallets) < 1 or len(additional_prompts) != 0:
                     wallet_address, additional_prompt_values = await self._prompt_for_wallet_address(
                         chain=chain, network=network, additional_prompts=additional_prompts
                     )
@@ -386,7 +384,6 @@ class GatewayCommand(GatewayChainApiManager):
                     trading_type=trading_type,
                     chain_type=chain_type,
                     wallet_address=wallet_address,
-                    additional_spenders=additional_spenders,
                     additional_prompt_values=additional_prompt_values,
                 )
                 self.notify(
@@ -419,14 +416,6 @@ class GatewayCommand(GatewayChainApiManager):
             return
 
         additional_prompt_values = {}
-        if chain == "near":
-            wallet_account_id: str = await self.app.prompt(
-                prompt=f"Enter your {chain}-{network} account Id >>> ",
-            )
-            additional_prompt_values["address"] = wallet_account_id
-            self.app.clear_input()
-            if self.app.to_stop_config:
-                return
 
         for field, prompt in additional_prompts.items():
             value = await self.app.prompt(prompt=prompt, is_password=True)
@@ -677,11 +666,7 @@ class GatewayCommand(GatewayChainApiManager):
     def is_gateway_markets(exchange_name: str) -> bool:
         return (
             exchange_name in sorted(
-                AllConnectorSettings.get_gateway_amm_connector_names().union(
-                    AllConnectorSettings.get_gateway_evm_amm_lp_connector_names()
-                ).union(
-                    AllConnectorSettings.get_gateway_clob_connector_names()
-                )
+                AllConnectorSettings.get_gateway_amm_connector_names()
             )
         )
 
