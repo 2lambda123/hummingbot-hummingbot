@@ -1,14 +1,8 @@
-from typing import (
-    Dict,
-    Optional,
-)
+from typing import Dict, Optional
 
 import pandas as pd
 
-from hummingbot.core.data_type.order_book_message import (
-    OrderBookMessage,
-    OrderBookMessageType,
-)
+from hummingbot.core.data_type.order_book_message import OrderBookMessage, OrderBookMessageType
 
 
 class BitfinexOrderBookMessage(OrderBookMessage):
