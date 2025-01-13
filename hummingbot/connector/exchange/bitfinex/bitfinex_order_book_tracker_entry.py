@@ -1,7 +1,6 @@
+from hummingbot.connector.exchange.bitfinex.bitfinex_active_order_tracker import BitfinexActiveOrderTracker
 from hummingbot.core.data_type.order_book import OrderBook
 from hummingbot.core.data_type.order_book_tracker_entry import OrderBookTrackerEntry
-from hummingbot.connector.exchange.bitfinex.bitfinex_active_order_tracker import \
-    BitfinexActiveOrderTracker
 
 
 class BitfinexOrderBookTrackerEntry(OrderBookTrackerEntry):

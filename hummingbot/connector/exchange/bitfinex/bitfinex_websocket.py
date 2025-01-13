@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 import asyncio
 import logging
-import websockets
-import ujson
 import uuid
+from typing import Any, AsyncIterable, Optional
 
-from typing import Optional, AsyncIterable, Any
-from websockets.exceptions import ConnectionClosed
+import ujson
+import websockets
 from async_timeout import timeout
-from hummingbot.logger import HummingbotLogger
+from websockets.exceptions import ConnectionClosed
+
 from hummingbot.connector.exchange.bitfinex import BITFINEX_WS_URI
 from hummingbot.connector.exchange.bitfinex.bitfinex_auth import BitfinexAuth
+from hummingbot.logger import HummingbotLogger
 
 
 # reusable websocket class

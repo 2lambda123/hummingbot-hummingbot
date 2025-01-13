@@ -2,7 +2,6 @@ import asyncio
 import bisect
 import logging
 import time
-
 from collections import defaultdict, deque
 from typing import Deque, Dict, List, Optional, Set
 
@@ -11,10 +10,7 @@ from hummingbot.connector.exchange.bitfinex.bitfinex_order_book import BitfinexO
 from hummingbot.connector.exchange.bitfinex.bitfinex_order_book_message import BitfinexOrderBookMessage
 from hummingbot.connector.exchange.bitfinex.bitfinex_order_book_tracker_entry import BitfinexOrderBookTrackerEntry
 from hummingbot.core.data_type.order_book import OrderBook
-from hummingbot.core.data_type.order_book_message import (
-    OrderBookMessage,
-    OrderBookMessageType,
-)
+from hummingbot.core.data_type.order_book_message import OrderBookMessage, OrderBookMessageType
 from hummingbot.core.data_type.order_book_tracker import OrderBookTracker
 from hummingbot.core.utils.async_utils import safe_ensure_future
 from hummingbot.logger import HummingbotLogger
